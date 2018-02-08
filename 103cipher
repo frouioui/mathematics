@@ -1,0 +1,149 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, sys, math
+
+def check_flag(flag):
+	if flag == 0 or flag == 1:
+		return 0
+	else:
+		return 1
+
+def lenght_argument(string, key):
+	if len(string) == 0 or len(key) == 0:
+		return 1
+	else:
+		return 0
+
+def fill_array(key):
+	i = 1
+	j = 0
+	lenght = get_lenght(key)
+	array = [0] * (lenght * lenght)
+	for value in key:
+		array[j] = ord(value)
+		j = j + 1
+	return array
+
+def get_inverse_key(key):
+	i = get_lenght(key) * get_lenght(key)
+	j = 0
+	lenght = get_lenght(key)
+	array = [0] * (lenght * lenght)
+	while i > len(key):
+		array[j] = 0
+		i = i - 1
+		j = j + 1
+	i = i - 1
+	while i >= 0:
+		array[j] = ord(key[i]);
+		j = j + 1
+		i = i - 1
+	return array
+
+def fill_array_message_decryption(message, key):
+	j = 0
+	i = 0
+	lenght_key = get_lenght(key)
+	lenght = len(message)
+	while i < lenght:
+		i = i + lenght_key
+	array_message = [0] * i
+	for value in message:
+		array_message[j] = value
+		j = j + 1
+	return array_message
+
+def get_lenght(string):
+	i = 1
+	while i * i < len(string):
+		i = i + 1
+	return i
+
+def fill_array_message(message, key):
+	j = 0
+	i = 0
+	lenght_key = get_lenght(key)
+	lenght = len(message)
+	while i < lenght:
+		i = i + lenght_key
+	array_message = [0] * i
+	for value in message:
+		array_message[j] = ord(value)
+		j = j + 1
+	return array_message
+
+def calcul(i, array_message, key_array, cursor_key_array):
+	result = 0
+	z = 0
+	a = 0
+	actual = i / get_lenght(key_array)
+	max_in_line = get_lenght(key_array)
+	actual = actual * get_lenght(key_array)
+	while z < max_in_line:
+		result += key_array[cursor_key_array + a] * array_message[actual + z]
+		z = z + 1
+		a += get_lenght(key_array)
+	return result
+
+def multiplication_matices(key_array, array_message):
+	j = 0
+	cursor_key_array = 0
+	line_message_array = 0
+	lenght = len(array_message)
+	array_result = [0] * (lenght)
+	i = 0
+	while i < lenght:
+		array_result[i] = calcul(i, array_message, key_array, cursor_key_array)
+		cursor_key_array += 1
+		if cursor_key_array >= get_lenght(key_array):
+			cursor_key_array = 0
+		i = i + 1
+	return array_result
+
+def display_result(key_array, array_result):
+	i = 0
+	a = 0
+	print "Key matrice :"
+	while i < len(key_array):
+		while a < get_lenght(key_array):
+			print key_array[i],
+			i = i + 1
+			a = a + 1
+			if a != get_lenght(key_array):
+				print '\t',
+		a = 0
+		print ('')
+ 	print "\nEncrypted message :"
+	i = 0
+	while i < len(array_result):
+		if array_result[i] != 0:
+			if i == len(array_result):
+				print array_result[i]
+			else:
+				print array_result[i],
+		i = i + 1
+
+if len(sys.argv) == 4:
+	try:
+		string = str(sys.argv[1])
+		key = str(sys.argv[2])
+		flag = int(sys.argv[3])
+		if lenght_argument(string, key) or check_flag(flag):
+			sys.exit(84)
+	except:
+		print "please enter valid arguments"
+		sys.exit(84)
+	if flag == 1: #decryption
+		key_array = get_inverse_key(key) #cette fonction remplie key_array à l'envers
+		array_message = fill_array_message_decryption(string, key) #remplie le array_message des valeur du message passé en argument
+		#array_result = multiplication_matices(key_array, array_message)
+		#display_result(key_array, array_result)
+	elif flag == 0: #encryption
+		key_array = fill_array(key)
+		array_message = fill_array_message(string, key)
+		array_result = multiplication_matices(key_array, array_message)
+		display_result(key_array, array_result)
+else:
+	print "please enter 3 arguments"
+	sys.exit(84)

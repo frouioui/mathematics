@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, sys, math
+
+def check_opt(opt):
+	if opt == 1 or opt == 2 or opt == 3:
+		return 0
+	else:
+		return 1
+
+def display_info_opt(opt, p):
+	if opt == 1:
+		print "sphere of radius %d" % (p)
+	elif opt == 2:
+		print "cylinder of radius %d" % (p)
+	elif opt == 3:
+		print "cone of %d degree angle" % (p)
+
+def display_info_vector(xp, yp, zp, xv, yv, zv):
+	print "straight line going through the (%d,%d,%d) point and of direction vector (%d,%d,%d)" % (xp, yp, zp, xv, yv, zv)
+
+def sphere(xp, yp, zp, xv, yv, zv, p):
+	a = math.pow(xv, 2) + math.pow(yv, 2) + math.pow(zv, 2)
+	b = (2 * xp * xv) + (2 * yp * yv) + (2 * zp * zv)
+	c = xp * xp + yp * yp - p * p
+	print a, b, c
+	return a, b, c
+
+def cylinder(xp, yp, zp, xv, yv, zv, p):
+	a = math.pow(xv, 2) + math.pow(yv, 2)
+	b = (2 * xp * xv) + (2 * yp * yv)
+	c = (math.pow(xp, 2) + math.pow(yp, 2)) - math.pow(p, 2)
+	return a, b, c
+
+def cone(xp, yp, zp, xv, yv, zv, p):
+	angle = (p * math.pi) / 180
+	a = math.pow(xv, 2) + math.pow(yv, 2) - (math.pow(zv, 2) / math.pow(math.tan(angle), 2))
+	b = ((2 * xp) * xv) + (2 * yp * yv) - (2 * zp * zv / math.pow(math.tan(angle), 2))
+	c = math.pow(xp, 2) + math.pow(yp, 2) - math.pow(zp, 2) / math.pow(math.tan(angle), 2)
+	return a, b, c
+
+def calcul_intersection(v, t, p):
+	return (v * t + p)
+
+def calcul_x1_x2(delta, a, b):
+	x1 = (-b+math.sqrt(delta))/(2*a)
+	x2 = (-b-math.sqrt(delta))/(2*a)
+	return x1, x2
+
+def calcul_x1(a, b):
+	x1 = (-b / 2 * a)
+	return x1
+
+def calcul_delta(a, b, c):
+	delta = math.pow(b, 2) - (4 * a * c)
+	return delta
+
+def calcul_opt(opt, xp, yp, zp, xv, yv, zv, p):
+	if opt == 1:
+		a, b, c = sphere(xp, yp, zp, xv, yv, zv, p)
+	if opt == 2:
+		a, b, c = cylinder(xp, yp, zp, xv, yv, zv, p)
+	if opt == 3:
+		a, b, c = cone(xp, yp, zp, xv, yv, zv, p)
+	delta = calcul_delta(a, b, c)
+	if delta > 0:
+		x1, x2 = calcul_x1_x2(delta, a, b)
+		xpx1 = calcul_intersection(xv, x1, xp)
+		ypx1 = calcul_intersection(yv, x1, yp)
+		zpx1 = calcul_intersection(zv, x1, zp)
+		xpx2 = calcul_intersection(xv, x2, xp)
+		ypx2 = calcul_intersection(yv, x2, yp)
+		zpx2 = calcul_intersection(zv, x2, zp)
+		print "2 intersection points :"
+		print "(%.3f, %.3f, %.3f)" % (xpx1, ypx1, zpx1)
+		print "(%.3f, %.3f, %.3f)" % (xpx2, ypx2, zpx2)
+	elif delta == 0:
+		x1 = calcul_x1(a, b)
+		xpx1 = calcul_intersection(xv, x1, xp)
+		ypx1 = calcul_intersection(yv, x1, yp)
+		zpx1 = calcul_intersection(zv, x1, zp)
+		print "1 intersection point :"
+		print "(%.3f, %.3f, %.3f)" % (xpx1, ypx1, zpx1)
+	else:
+		print "There is an infinite number of intersection points."
+
+if len(sys.argv) == 9:
+	try:
+		opt = int(sys.argv[1])
+		xp, yp, zp = int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
+		xv, yv, zv = int(sys.argv[5]), int(sys.argv[6]), int(sys.argv[7])
+		p = int(sys.argv[8])
+		if check_opt(opt) == 1:
+			sys.exit(84)
+	except:
+		print "[ERROR] : please enter valid arguments"
+		sys.exit(84)
+	display_info_opt(opt, p)
+	display_info_vector(xp, yp, zp, xv, yv, zv)
+	calcul_opt(opt, xp, yp, zp, xv, yv, zv, p)
+else:
+	print "[ERROR] : please enter 8 arguments"
+	sys.exit(84)

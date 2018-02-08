@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, sys, math
+
+def homotheties(array, x, y):
+	array[0] = x + 1 - 1
+	array[4] = y + 1 - 1
+	return array
+
+def rotation(array, angle):
+	array[0] = round(math.cos(math.radians(angle)), 8) + 1 - 1
+	array[1] = round(-math.sin(math.radians(angle)), 8) + 1 - 1
+	array[3] = round(math.sin(math.radians(angle)), 8) + 1 - 1
+	array[4] = round(math.cos(math.radians(angle)), 8) + 1 - 1
+	return array
+
+def symetrie(array, angle):
+	array[0] = round(math.cos(2*math.radians(angle)), 8) + 1 - 1
+	array[1] = round(math.sin(2*math.radians(angle)), 8) + 1 - 1
+	array[3] = round(math.sin(2*math.radians(angle)), 8) + 1 - 1
+	array[4] = round(-math.cos(2*math.radians(angle)), 8) + 1 - 1
+	return array
+
+def translation(array, tx, ty):
+	array[0] = 1
+	array[2] = tx + 1 - 1
+	array[4] = 1
+	array[5] = ty + 1 - 1
+	return array
+
+def matrices(array1, array2):
+	array3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	array3[0] = (array1[0] * array2[0]) + (array1[1] * array2[3]) + (array1[2] * array2[6])
+	array3[1] = (array1[0] * array2[1]) + (array1[1] * array2[4]) + (array1[2] * array2[7])
+	array3[2] = (array1[0] * array2[2]) + (array1[1] * array2[5]) + (array1[2] * array2[8])
+	array3[3] = (array1[3] * array2[0]) + (array1[4] * array2[3]) + (array1[5] * array2[6])
+	array3[4] = (array1[3] * array2[1]) + (array1[4] * array2[4]) + (array1[5] * array2[7])
+	array3[5] = (array1[3] * array2[2]) + (array1[4] * array2[5]) + (array1[5] * array2[8])
+	array3[6] = (array1[6] * array2[0]) + (array1[7] * array2[3]) + (array1[8] * array2[6])
+	array3[7] = (array1[6] * array2[1]) + (array1[7] * array2[4]) + (array1[8] * array2[7])
+	array3[8] = (array1[6] * array2[2]) + (array1[7] * array2[5]) + (array1[8] * array2[8])
+	array3[9] = array1[9]
+	array3[10] = array1[10]
+	array3[11] = array1[11]
+	return array3
+
+if len(sys.argv) > 4:
+	try:
+		i, z = 3, 0
+		x, y = int(sys.argv[1]), int(sys.argv[2])
+		array3 = []
+		while i < len(sys.argv):
+			array = [0, 0, 0, 0, 0, 0, 0, 0, 1, x, y, 1]
+			if sys.argv[i] == "-t":
+				tmp, tmp2 = int(sys.argv[i+1]), int(sys.argv[i+2])
+				print "Translation by the vector (%d, %d)" % (tmp, tmp2)
+				array = translation(array, tmp, tmp2);
+				i = i + 2
+				z = z + 1
+			elif sys.argv[i] == "-h":
+				tmp, tmp2 = int(sys.argv[i+1]), int(sys.argv[i+2])
+				print "Homothety by the ratios %d and %d" % (tmp, tmp2)
+				array = homotheties(array, tmp, tmp2)
+				i = i + 2
+				z = z + 1
+			elif sys.argv[i] == "-r":
+				tmp = int(sys.argv[i+1])
+				print "Rotation at a %d degree angle" % (tmp)
+				array = rotation(array, tmp)
+				i = i + 1
+				z = z + 1
+			elif sys.argv[i] == "-s":
+				tmp = int(sys.argv[i+1])
+				print "Symmetry about an axis inclined with an angle of %d degrees" % (tmp)
+				array = symetrie(array, tmp)
+				i = i + 1
+				z = z + 1
+			else:
+				sys.exit(84)
+			i = i + 1
+			if z == 1:
+				for value in array:
+					array3.append(value)
+			elif z >= 2:
+				array3 = matrices(array3, array)
+		print "%.2f	%.2f	%.2f" % (array3[0], array3[1], array3[2])
+		print "%.2f	%.2f	%.2f" % (array3[3], array3[4], array3[5])
+		print "%.2f	%.2f	%.2f" % (array3[6], array3[7], array3[8])
+		x2 = (array3[0] * array3[9]) + (array3[1] * array3[10]) + (array3[2] * array3[11])
+		y2 = (array3[3] * array3[9]) + (array3[4] * array3[10]) + (array3[5] * array3[11])
+		print "(%d,%d) => (%.2f,%.2f)" % (array3[9], array3[10], x2, y2)
+	except:
+		print "Please enter numbers in x y and correct flags (-t -h -r -s)"
+		sys.exit(84)
+else:
+	print "Error: please enter at least 4 arguments"
+	sys.exit(84)
